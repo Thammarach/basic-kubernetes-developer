@@ -1,4 +1,4 @@
-# K8S Basic
+# Basic Kubernetes (K8s) for Web Developer
 
 kubectl config get-contexts
 
