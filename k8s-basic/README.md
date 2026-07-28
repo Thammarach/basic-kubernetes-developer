@@ -80,7 +80,6 @@ To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 ```
 
 kubectl get nodes
-kubectl get all --all-namespaces
 
 ```shell
 NAME                      STATUS   ROLES           AGE     VERSION
@@ -88,6 +87,44 @@ mycluster-control-plane   Ready    control-plane   2m30s   v1.31.0
 mycluster-worker          Ready    <none>          2m15s   v1.31.0
 mycluster-worker2         Ready    <none>          2m15s   v1.31.0
 mycluster-worker3         Ready    <none>          2m15s   v1.31.0
+```
+
+kubectl get all --all-namespaces
+
+```shell
+NAMESPACE            NAME                                                  READY   STATUS    RESTARTS   AGE
+default              pod/linux                                             2/2     Running   0          17m
+kube-system          pod/coredns-6f6b679f8f-5dn9f                          1/1     Running   0          64m
+kube-system          pod/coredns-6f6b679f8f-dk5tf                          1/1     Running   0          64m
+kube-system          pod/etcd-mycluster-control-plane                      1/1     Running   0          64m
+kube-system          pod/kindnet-8pxhm                                     1/1     Running   0          64m
+kube-system          pod/kindnet-gt696                                     1/1     Running   0          64m
+kube-system          pod/kindnet-wq9jd                                     1/1     Running   0          64m
+kube-system          pod/kindnet-zxrm4                                     1/1     Running   0          64m
+kube-system          pod/kube-apiserver-mycluster-control-plane            1/1     Running   0          64m
+kube-system          pod/kube-controller-manager-mycluster-control-plane   1/1     Running   0          64m
+kube-system          pod/kube-proxy-dhdmk                                  1/1     Running   0          64m
+kube-system          pod/kube-proxy-glz4v                                  1/1     Running   0          64m
+kube-system          pod/kube-proxy-n869s                                  1/1     Running   0          64m
+kube-system          pod/kube-proxy-nr8jw                                  1/1     Running   0          64m
+kube-system          pod/kube-scheduler-mycluster-control-plane            1/1     Running   0          64m
+local-path-storage   pod/local-path-provisioner-57c5987fd4-6fzmv           1/1     Running   0          64m
+
+NAMESPACE     NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE
+default       service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP                  64m
+kube-system   service/kube-dns     ClusterIP   10.96.0.10   <none>        53/UDP,53/TCP,9153/TCP   64m
+
+NAMESPACE     NAME                        DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+kube-system   daemonset.apps/kindnet      4         4         4       4            4           kubernetes.io/os=linux   64m
+kube-system   daemonset.apps/kube-proxy   4         4         4       4            4           kubernetes.io/os=linux   64m
+
+NAMESPACE            NAME                                     READY   UP-TO-DATE   AVAILABLE   AGE
+kube-system          deployment.apps/coredns                  2/2     2            2           64m
+local-path-storage   deployment.apps/local-path-provisioner   1/1     1            1           64m
+
+NAMESPACE            NAME                                                DESIRED   CURRENT   READY   AGE
+kube-system          replicaset.apps/coredns-6f6b679f8f                  2         2         2       64m
+local-path-storage   replicaset.apps/local-path-provisioner-57c5987fd4   1         1         1       64m
 ```
 
 kubectl get pods --all-namespaces
@@ -204,4 +241,18 @@ kind delete cluster --name kind
 ```shell
 Deleting cluster "mycluster" ...
 Deleted nodes: ["mycluster-control-plane" "mycluster-worker2" "mycluster-worker" "mycluster-worker3"]
+```
+
+# Create Pod Demo
+
+```shell
+kubectl apply -f 01-pod.yaml
+```
+
+```shell
+pod/linux created
+
+$ kubectl get pods -A
+NAMESPACE            NAME                                              READY   STATUS    RESTARTS   AGE
+default              linux                                             2/2     Running   0          2m35s
 ```
