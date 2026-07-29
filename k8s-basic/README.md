@@ -410,3 +410,52 @@ php-apache-6c4c4b955c-jwldv   1/1     Terminating   0          12m
 php-apache-6c4c4b955c-nq9hk   1/1     Running       0          47m
 php-apache-6c4c4b955c-xsmfl   1/1     Running       0          12m
 ```
+
+ในการทำงานจริงเราต้องดู Memory ควบคุ่ด้วย
+
+kubectl apply -f hpa-v2.yaml
+
+```shell
+horizontalpodautoscaler.autoscaling/hpa-v2 created
+```
+
+kubectl get hpa -n demok8s
+
+```shell
+NAME     REFERENCE               TARGETS                        MINPODS   MAXPODS   REPLICAS   AGE
+hpa-v2   Deployment/php-apache   cpu: 1%/10%, memory: 13%/20%   3         10        3          8m14s
+```
+
+kubectl get hpa -n demok8s
+
+```shell
+NAME     REFERENCE               TARGETS                         MINPODS   MAXPODS   REPLICAS   AGE
+hpa-v2   Deployment/php-apache   cpu: 15%/10%, memory: 23%/20%   3         10        7          13m
+```
+
+kubectl apply -f mongo-deployment.yaml 
+
+```shell
+deployment.apps/mongo-deployment created
+service/mongo-service created
+```
+
+kubectl apply -f server-deployment.yaml 
+deployment.apps/server-deployment created
+service/server-service created
+
+kubectl apply -f client-deployment.yaml
+deployment.apps/client-deployment created
+service/client-service created
+
+kubectl get deployment -n demok8s
+NAME                READY   UP-TO-DATE   AVAILABLE   AGE
+client-deployment   3/3     3            3           46s
+mongo-deployment    1/1     1            1           8m32s
+server-deployment   3/3     3            3           3m47s
+
+kubectl get services -n demok8s
+NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)     AGE
+client-service   ClusterIP   10.96.65.9      <none>        80/TCP      2m39s
+mongo-service    ClusterIP   10.96.129.178   <none>        27017/TCP   10m
+server-service   ClusterIP   10.96.172.120   <none>        80/TCP      5m40s

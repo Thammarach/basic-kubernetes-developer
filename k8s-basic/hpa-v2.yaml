@@ -25,14 +25,14 @@ spec:
         averageUtilization: 20 # 5% of the memory
   behavior:
     scaleDown:
-      stabilizationWindowSeconds: 30 # 1 minute
+      stabilizationWindowSeconds: 30 # Scale down1 within 0.5 minute
       policies:
       - type: Pods
-        value: 3 # 1 pod
-        periodSeconds: 15 # 1 minute
+        value: 3 # Continue checking to see if there are more than 3 pods.
+        periodSeconds: 15 # Check every 15 Second
     scaleUp:
-      stabilizationWindowSeconds: 30 # 1 minute
+      stabilizationWindowSeconds: 30 # Scale up within 0.5 minute
       policies:
       - type: Percent
-        value: 10 # 10% of the pods
-        periodSeconds: 15 # 1 minute
+        value: 10 # Continue checking to see if there are 10% usage of the pods.
+        periodSeconds: 15 # Check every 15 Second

@@ -32,7 +32,7 @@ export let options = {
 // This function is executed repeatedly by every Virtual User (VU)
 export default function () {
   // Send an HTTP GET request to the target application
-  http.get('http://localhost:39183/')
+  http.get('http://localhost:59956/')
 
   // Wait 1 second before sending the next request
   // This simulates real user behavior and prevents continuous requests
