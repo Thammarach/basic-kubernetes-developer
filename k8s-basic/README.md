@@ -256,3 +256,47 @@ $ kubectl get pods -A
 NAMESPACE            NAME                                              READY   STATUS    RESTARTS   AGE
 default              linux                                             2/2     Running   0          2m35s
 ```
+
+# =========
+
+คำสั่งเช็คว่าเปิด Metrics Server ของ Cluster ไว้หรือยัง
+
+kubectl top node
+kubectl top pods -A
+
+```shell
+error: Metrics API not available
+```
+
+ขึ้นแบบนี้แสดงว่ายังไม่ได้เปิดใช้งานคุณสมบัติ Metrics Server
+
+
+kubectl apply -f components.yaml
+
+```shell
+serviceaccount/metrics-server created
+clusterrole.rbac.authorization.k8s.io/system:aggregated-metrics-reader created
+clusterrole.rbac.authorization.k8s.io/system:metrics-server created
+rolebinding.rbac.authorization.k8s.io/metrics-server-auth-reader created
+clusterrolebinding.rbac.authorization.k8s.io/metrics-server:system:auth-delegator created
+clusterrolebinding.rbac.authorization.k8s.io/system:metrics-server created
+service/metrics-server created
+deployment.apps/metrics-server created
+apiservice.apiregistration.k8s.io/v1beta1.metrics.k8s.io created
+```
+
+Reference
+
+https://github.com/kubernetes-sigs/metrics-server/releases
+https://dev.to/docker/enable-kubernetes-metrics-server-on-docker-desktop-5434
+
+
+kubectl top nodes
+
+```shell
+NAME                      CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
+mycluster-control-plane   188m         2%       745Mi           4%          
+mycluster-worker          33m          0%       208Mi           1%          
+mycluster-worker2         32m          0%       213Mi           1%          
+mycluster-worker3         36m          0%       230Mi           1% 
+```
