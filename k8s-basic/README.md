@@ -270,6 +270,8 @@ error: Metrics API not available
 
 ขึ้นแบบนี้แสดงว่ายังไม่ได้เปิดใช้งานคุณสมบัติ Metrics Server
 
+Dowload file จาก https://github.com/kubernetes-sigs/metrics-server/releases
+สำหรับ Kubernetes บน Docker Desktop ให้ทำการเพิ่ม --kubelet-insecure-tls
 
 kubectl apply -f components.yaml
 
@@ -286,10 +288,7 @@ apiservice.apiregistration.k8s.io/v1beta1.metrics.k8s.io created
 ```
 
 Reference
-
-https://github.com/kubernetes-sigs/metrics-server/releases
 https://dev.to/docker/enable-kubernetes-metrics-server-on-docker-desktop-5434
-
 
 kubectl top nodes
 
@@ -299,4 +298,115 @@ mycluster-control-plane   188m         2%       745Mi           4%
 mycluster-worker          33m          0%       208Mi           1%          
 mycluster-worker2         32m          0%       213Mi           1%          
 mycluster-worker3         36m          0%       230Mi           1% 
+```
+
+kubectl apply -f 05-autoscaling-deployment.yml
+
+```shell
+deployment.apps/php-apache created
+service/php-apache created
+```
+
+kubectl get pods -n demok8s
+
+```shell
+NAME                          READY   STATUS    RESTARTS   AGE
+php-apache-6c4c4b955c-ljdtn   1/1     Running   0          3s
+php-apache-6c4c4b955c-nq9hk   1/1     Running   0          3s
+```
+
+kubectl apply -f hpa-v1.yaml
+
+```shell
+horizontalpodautoscaler.autoscaling/hpa-v1 created
+```
+
+kubectl get HorizontalPodAutoscaler -n demok8s
+
+```shell
+NAME     REFERENCE               TARGETS      MINPODS   MAXPODS   REPLICAS   AGE
+hpa-v1   Deployment/php-apache   cpu: 1%/5%   3         10        3          3m29s
+```
+
+pods ถูก scail เพิ่มขึ้นมาเป็น 3 pods ตามที่ระบุใน config 'hpa-v1.yaml' และจะเพิ่มขึ้นถ้าผลรวม cpu ของทุก pods เกิน 5% จะทำการ scail เพิ่ม
+
+Load Testing ด้วย K6 Loadtest
+
+k6 run k6-loadtest.js
+
+```shell
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: k6-loadtest.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 400 max VUs, 2m20s max duration (incl. graceful stop):
+              * default: Up to 400 looping VUs for 1m50s over 4 stages (gracefulRampDown: 30s, gracefulStop: 30s)
+
+ █ TOTAL RESULTS 
+
+    HTTP
+    http_req_duration....: avg=1.45s min=0s med=6.97ms max=1m0s p(90)=273.28ms p(95)=794.92ms
+    http_req_failed......: 100.00% 12740 out of 12740
+    http_reqs............: 12740   110.430878/s
+
+    EXECUTION
+    iteration_duration...: avg=2.43s min=1s med=1s     max=1m1s p(90)=1.27s    p(95)=1.79s   
+    iterations...........: 12736   110.396206/s
+    vus..................: 12      min=12             max=400
+    vus_max..............: 400     min=400            max=400
+
+    NETWORK
+    data_received........: 5.9 MB  51 kB/s
+    data_sent............: 898 kB  7.8 kB/s
+
+running (1m55.4s), 000/400 VUs, 12736 complete and 63 interrupted iterations
+default ✓ [======================================] 000/400 VUs  1m50s
+```
+
+kubectl get hpa -n demok8s
+
+```shell
+NAME     REFERENCE               TARGETS      MINPODS   MAXPODS   REPLICAS   AGE
+hpa-v1   Deployment/php-apache   cpu: 6%/5%   3         10        10         31m
+```
+
+kubectl get deployments -n demok8s
+
+```shell
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+php-apache   10/10   10           10          36m
+```
+
+kubectl get pods -n demok8s
+
+```shell
+NAME                          READY   STATUS    RESTARTS   AGE
+php-apache-6c4c4b955c-7m67s   1/1     Running   0          51s
+php-apache-6c4c4b955c-cslhx   1/1     Running   0          66s
+php-apache-6c4c4b955c-fj56b   1/1     Running   0          66s
+php-apache-6c4c4b955c-hgr28   1/1     Running   0          51s
+php-apache-6c4c4b955c-jwldv   1/1     Running   0          51s
+php-apache-6c4c4b955c-ljdtn   1/1     Running   0          36m
+php-apache-6c4c4b955c-nq9hk   1/1     Running   0          36m
+php-apache-6c4c4b955c-nzh2m   1/1     Running   0          66s
+php-apache-6c4c4b955c-xsmfl   1/1     Running   0          51s
+php-apache-6c4c4b955c-xxhkz   1/1     Running   0          26m
+```
+
+kubectl get pods -n demok8s
+
+```shell
+NAME                          READY   STATUS        RESTARTS   AGE
+php-apache-6c4c4b955c-fj56b   1/1     Terminating   0          12m
+php-apache-6c4c4b955c-jwldv   1/1     Terminating   0          12m
+php-apache-6c4c4b955c-nq9hk   1/1     Running       0          47m
+php-apache-6c4c4b955c-xsmfl   1/1     Running       0          12m
 ```
