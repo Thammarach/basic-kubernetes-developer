@@ -459,3 +459,18 @@ NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)     AGE
 client-service   ClusterIP   10.96.65.9      <none>        80/TCP      2m39s
 mongo-service    ClusterIP   10.96.129.178   <none>        27017/TCP   10m
 server-service   ClusterIP   10.96.172.120   <none>        80/TCP      5m40s
+
+kubectl apply -f 06-ingress.yaml 
+
+```shell
+ingress.networking.k8s.io/ingress-service created
+```
+
+kubectl get ingress -A
+
+```shell
+NAMESPACE   NAME              CLASS    HOSTS                        ADDRESS   PORTS   AGE
+demok8s     ingress-service   <none>   kubernetes.docker.internal             80      2m32s
+```
+
+http://kubernetes.docker.internal:80
